@@ -1,95 +1,112 @@
-import Image from "next/image";
+"use client"
+import { Button, ConfigProvider, Tooltip } from "antd";
+import { PlayCircleFilled } from '@ant-design/icons';
 import styles from "./page.module.css";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function Home() {
+export interface Voice {
+  name: string;
+  category: string;
+  preview_url:string;
+  labels: {
+    description: string;
+    age: string;
+    gender: string;
+    accent: string;
+    use_case: string;
+  };
+  description: string;
+}
+
+export default function Voices() {
+  const router = useRouter();
+  const [voices, setVoices] = useState<Voice[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchVoices = async () => {
+      try {
+        const response = await fetch('/api/voices');
+        const data = await response.json();
+        if (response.ok) {
+          setVoices(data.voices);
+        } else {
+          setError(data.error);
+        }
+      } catch (error) {
+        setError("Deu erro");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchVoices();
+  }, []);
+  const playAudio = (url: string) => {
+    try {
+      const audio = new Audio(url);
+      audio.play();
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      
+    }
+  }
+
+  const handlePage = (path: string) => {
+    router.push(path);
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#F76F00',
+          borderRadius: 5,
+        },
+      }}
+    >
+      <div className={styles.container}>
+        <div className={styles.selectFunction}>
+          <Button type="primary" className={styles.mainBtn} onClick={() => handlePage("/")}>Vozes</Button>
+          <Button type="primary" className={styles.mainBtn} onClick={() => handlePage("/converts")}>Texto para voz</Button>
+          
+        </div>
+
+        <div className={styles.voiceInfo}>
+          {loading ? (
+            <p>Loading voices...</p>
+          ) : error ? (
+            <p>Error: {error}</p>
+          ) : (
+            <ul className={styles.list}>
+              {voices.map((voice) => (
+                <li key={voice.name} className={styles.voice}>
+                <span className={styles.name}>{voice.name} </span> 
+                <div className={styles.labelsContainer}>
+                  <span className={styles.label}>Categoria: {voice.category}</span> 
+                  <span className={styles.label}>Descrição: {voice.labels.description}</span> 
+                  <span className={styles.label}>Idade: {voice.labels.age}</span> 
+                  <span className={styles.label}>Acento: {voice.labels.accent}</span> 
+                  <span className={styles.label}>Gênero: {voice.labels.gender}</span> 
+                  <span className={styles.label}>Caso de uso: {voice.labels.use_case}</span> 
+                   
+                </div>
+                
+                  <Button
+                    className={styles.btnPrimary}
+                    type="primary"
+                    shape="circle"
+                    onClick={() => playAudio(voice.preview_url)}
+                    icon={<PlayCircleFilled />}
+                  />
+                
+              </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </ConfigProvider>
   );
 }

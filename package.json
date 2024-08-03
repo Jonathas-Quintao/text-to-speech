@@ -9,16 +9,26 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.4.0",
+    "antd": "^5.19.4",
+    "dotenv": "^16.4.5",
+    "elevenlabs": "^0.13.0",
+    "howler": "^2.2.4",
+    "next": "14.2.5",
+    "node-fetch": "^2.7.0",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.5"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@types/dotenv": "^8.2.0",
     "@types/node": "^20",
+    "@types/node-fetch": "^2.6.11",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
     "eslint": "^8",
-    "eslint-config-next": "14.2.5"
+    "eslint-config-next": "14.2.5",
+    "typescript": "^5"
   }
 }
