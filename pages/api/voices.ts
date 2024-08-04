@@ -4,7 +4,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'GET') {
       try {
         const apiUrl = 'https://api.elevenlabs.io/v1/voices';
-        console.log(apiUrl)
+
   
         const response = await fetch(apiUrl, {
           method: 'GET',
