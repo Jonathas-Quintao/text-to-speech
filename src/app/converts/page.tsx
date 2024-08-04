@@ -1,12 +1,12 @@
 "use client";
-import { Button, ConfigProvider, Select, Tooltip } from "antd";
+import { Button, ConfigProvider, Select } from "antd";
 import { PlayCircleFilled } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import styles from "./converts.module.css";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Tipagem para a voz
+
 export interface Voice {
   id: string;
   name: string;
@@ -18,11 +18,16 @@ export default function Home() {
   const [voices, setVoices] = useState<Voice[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
-  const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
   const [audios, setAudios] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const [fetchTimestamp, setFetchTimestamp] = useState<number>(Date.now());
 
+
+
+  
+
+ 
   useEffect(() => {
     const fetchVoices = async () => {
       try {
@@ -34,17 +39,19 @@ export default function Home() {
           setError(data.error);
         }
       } catch (error) {
-        setError("Deu erro");
+        setError("Failed to fetch voices");
       }
     };
-
     const fetchAudios = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/savedAudiosApi");
+        const response = await fetch("/api/listAudio");
         const data = await response.json();
+
         if (response.ok) {
-          setAudios(data.audios || []);
+
+          setAudios(data.blobs.map((blob: any) => blob.url));
+
         } else {
           setError(data.error);
         }
@@ -56,8 +63,8 @@ export default function Home() {
     };
 
     fetchVoices();
-    fetchAudios();
-  }, [generatedAudio]);
+    fetchAudios(); 
+  }, [fetchTimestamp]); 
 
   const handlePage = (path: string) => {
     router.push(path);
@@ -70,12 +77,12 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text, voiceId: selectedVoice }), // Use voiceId
+        body: JSON.stringify({ text, voiceId: selectedVoice }), 
       });
       const data = await response.json();
       if (response.ok) {
-        console.log("Audio file created:", data.fileName);
-        setGeneratedAudio(data.fileName);
+
+        setFetchTimestamp(Date.now()); 
       } else {
         console.error("Error creating audio file:", data.error);
       }
@@ -86,10 +93,14 @@ export default function Home() {
 
   const handlePlayAudio = (url: string) => {
     const audio = new Audio(url);
-    console.log(audio);
+    setPlayingAudio(url); 
 
     audio.onerror = (error) => {
-      console.error("Erro ao reproduzir áudio:", error);
+      console.error("Error playing audio:", error);
+    };
+
+    audio.onended = () => {
+      setPlayingAudio(null); 
     };
 
     audio.play();
@@ -135,8 +146,8 @@ export default function Home() {
         </div>
         <div className={styles.sendTxt}>
           <Select
-            defaultValue={selectedVoice}
-            onChange={(value) => {setSelectedVoice(value)}}
+            value={selectedVoice || undefined} 
+            onChange={(value) => setSelectedVoice(value)}
             style={{ width: 200 }}
             options={voices.map((voice) => ({
               value: voice.id,
