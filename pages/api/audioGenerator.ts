@@ -7,6 +7,7 @@ import { put } from '@vercel/blob';
 interface TextToSpeechRequest {
   text: string;
   voiceId: string;
+  voiceName: string;
 }
 
 
@@ -30,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           return res.status(500).json({ error: 'Erro ao processar o formulário' });
         }
 
-        const { text, voiceId }: TextToSpeechRequest = fields as any; 
+        const { text, voiceId, voiceName }: TextToSpeechRequest = fields as any; 
 
         if (!text || !voiceId) {
           return res.status(400).json({ error: 'Requisição em branco' });
@@ -59,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           throw new Error('Deu erro ao obter o fluxo de áudio');
         }
 
-        const fileName = `${uuid()}.mp3`;
+        const fileName = `${text}_${voiceName}.mp3`;
         
 
         const blob = await put(fileName, audioStream, {

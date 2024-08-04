@@ -18,6 +18,7 @@ export default function Home() {
   const [voices, setVoices] = useState<Voice[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  const [voiceName, setVoiceName] = useState<string | null>(null);
   const [audios, setAudios] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
@@ -77,7 +78,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text, voiceId: selectedVoice }), 
+        body: JSON.stringify({ text, voiceId: selectedVoice, voiceName:  voiceName}), 
       });
       const data = await response.json();
       if (response.ok) {
@@ -147,7 +148,16 @@ export default function Home() {
         <div className={styles.sendTxt}>
           <Select
             value={selectedVoice || undefined} 
-            onChange={(value) => setSelectedVoice(value)}
+            onChange={(value) => {
+              setSelectedVoice(value);
+              
+              const selectedVoiceObj = voices.find((voice) => voice.id === value);
+              if (selectedVoiceObj) {
+                setVoiceName(selectedVoiceObj.name);
+              } else {
+                setVoiceName(null);
+              }
+            }}
             style={{ width: 200 }}
             options={voices.map((voice) => ({
               value: voice.id,
