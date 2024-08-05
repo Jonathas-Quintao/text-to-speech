@@ -87,7 +87,7 @@ export default function Voices() {
                   <span className={styles.label}>Categoria: {voice.category}</span> 
                   <span className={styles.label}>Descrição: {voice.labels.description}</span> 
                   <span className={styles.label}>Idade: {voice.labels.age}</span> 
-                  <span className={styles.label}>Acento: {voice.labels.accent}</span> 
+                  <span className={styles.label}>Sotaque: {voice.labels.accent}</span> 
                   <span className={styles.label}>Gênero: {voice.labels.gender}</span> 
                   <span className={styles.label}>Caso de uso: {voice.labels.use_case}</span> 
                    
